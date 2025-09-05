@@ -20,9 +20,16 @@ export function SubscriptionModal({ onClose, currentSubscription }) {
   const handleSubscribe = async () => {
     setLoading(true)
     try {
-      await createSubscription()
+      const subscription = await createSubscription()
+      
+      // Show success message
+      if (subscription.status === 'active') {
+        alert('Welcome to Pro! Your subscription is now active.')
+      }
+      
       onClose()
     } catch (error) {
+      console.error('Subscription error:', error)
       alert('Failed to process subscription. Please try again.')
     } finally {
       setLoading(false)

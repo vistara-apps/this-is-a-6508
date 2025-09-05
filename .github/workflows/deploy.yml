@@ -16,9 +16,8 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '22'
+        node-version: '20'
         cache: 'npm'
-        cache-dependency-path: 'package-lock.json'
         
     - name: Verify package files
       run: |
@@ -30,10 +29,18 @@ jobs:
         npm --version
 
     - name: Install dependencies
-      run: npm ci
+      run: |
+        echo "Installing dependencies..."
+        npm ci
+        echo "Dependencies installed successfully"
 
     - name: Build application
-      run: npm run build
+      run: |
+        echo "Starting build process..."
+        npm run build
+        echo "Build completed successfully"
+        echo "Build output:"
+        ls -la dist/
       env:
         NODE_OPTIONS: --max-old-space-size=4096
         

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Video, Square, Play, Pause, MapPin, Clock, FileText, Lock } from 'lucide-react'
+import { Video, Square, Play, Pause, MapPin, Clock, FileText, Lock, AlertTriangle } from 'lucide-react'
 import { InfoCard } from './InfoCard'
 import { Button } from './Button'
 import { useIncidentRecording } from '../hooks/useIncidentRecording'
@@ -9,11 +9,17 @@ export function IncidentRecorder({ location, isPro, onUpgradeClick }) {
   const { 
     isRecording, 
     recordingTime, 
+    summary,
+    summaryUrl,
+    currentIncident,
+    loading,
+    error,
     startRecording, 
     stopRecording, 
     generateSummary,
-    summary,
-    loading 
+    copyShareableLink,
+    downloadSummary,
+    resetRecording
   } = useIncidentRecording()
 
   const [notes, setNotes] = useState('')
@@ -68,10 +74,32 @@ export function IncidentRecorder({ location, isPro, onUpgradeClick }) {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <Video className="w-6 h-6 text-accent" />
-        <h2 className="text-2xl font-bold text-text-primary">Incident Recorder</h2>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Video className="w-6 h-6 text-accent" />
+          <h2 className="text-2xl font-bold text-text-primary">Incident Recorder</h2>
+        </div>
+        {currentIncident && (
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={resetRecording}
+            className="text-text-secondary"
+          >
+            New Recording
+          </Button>
+        )}
       </div>
+
+      {/* Error Display */}
+      {error && (
+        <InfoCard className="border-red-200 bg-red-50">
+          <div className="flex items-center gap-2 text-red-800">
+            <AlertTriangle className="w-5 h-5" />
+            <p className="text-sm">{error}</p>
+          </div>
+        </InfoCard>
+      )}
 
       {/* Recording Interface */}
       <InfoCard className="text-center">
@@ -183,11 +211,32 @@ export function IncidentRecorder({ location, isPro, onUpgradeClick }) {
             <h4 className="font-semibold text-text-primary mb-2">Incident Summary</h4>
             <p className="text-text-secondary text-sm whitespace-pre-wrap">{summary}</p>
             <div className="mt-4 flex gap-2">
-              <Button variant="secondary" size="sm">
+              <Button 
+                variant="secondary" 
+                size="sm"
+                onClick={() => {
+                  const success = copyShareableLink()
+                  if (success) {
+                    // Show success feedback
+                    const button = event.target
+                    const originalText = button.textContent
+                    button.textContent = 'Copied!'
+                    setTimeout(() => {
+                      button.textContent = originalText
+                    }, 2000)
+                  }
+                }}
+                disabled={!summaryUrl}
+              >
                 Copy Link
               </Button>
-              <Button variant="secondary" size="sm">
-                Download PDF
+              <Button 
+                variant="secondary" 
+                size="sm"
+                onClick={downloadSummary}
+                disabled={!summary}
+              >
+                Download
               </Button>
             </div>
           </div>
